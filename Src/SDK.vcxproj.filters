@@ -30,5 +30,13 @@
     <Filter Include="Utils">
       <UniqueIdentifier>{030c5e6d-83da-4226-8a0d-f2139246b092}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Test">
+      <UniqueIdentifier>{38e34e5a-1a1c-4b00-9905-5ffbf7cb67df}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="test.py">
+      <Filter>Test</Filter>
+    </None>
   </ItemGroup>
 </Project>

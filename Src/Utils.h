@@ -10,7 +10,7 @@
 #include <iomanip>
 #include <random>
 #include <chrono>
-using namespace std;
+
 namespace utils {
 
 	using namespace std;
@@ -29,6 +29,14 @@ namespace utils {
 			time_t now = time(nullptr);
 			char mbstr[100];
 			strftime(mbstr, sizeof(mbstr), "%y%m%d%H%M%S", localtime(&now));
+			return mbstr;
+		}
+		// 返回日期的格式化字符串，年/月/日 时:分:秒
+		static string to_format_str()
+		{
+			time_t now = time(nullptr);
+			char mbstr[100];
+			strftime(mbstr, sizeof(mbstr), "%y/%m/%d %H:%M:%S", localtime(&now));
 			return mbstr;
 		}
 	};
@@ -54,10 +62,10 @@ namespace utils {
 		}
 		double getDuration()
 		{
-			return std::chrono::duration<double, std::milli>(Clock::now() - startTime).count();
+			return std::chrono::duration<double>(Clock::now() - startTime).count();
 		}
 	};
-	
+
 	static void split_filename(const string& str, string& dir, string& file, string& id) {
 		size_t found1 = str.find_last_of("/\\");
 		size_t found2 = str.find_last_of("_");
@@ -68,96 +76,68 @@ namespace utils {
 	}
 }
 
-
 namespace fast_io
 {
-    inline char nextChar()
-    {
-        static char buf[1000000], * p1 = buf, * p2 = buf;
-        return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 1000000, stdin), p1 == p2) ? EOF : *p1++;
-    }
-#define getch getchar
-    template <class T>
-    inline void read(T& x)
-    {
-        T flag = 1;
-        x = 0;
-        char ch = getch();
-        while (ch < '0' || ch > '9')
-        {
-            if (ch == '-')
-                flag = -1;
-            ch = getch();
-        }
-        while (ch >= '0' && ch <= '9')
-        {
-            x = (x << 3) + (x << 1) + (ch ^ 48), ch = getch();
-        }
-        x *= flag;
-    }
+	using namespace std;
 
-    template <class T, class... _T>
-    inline void read(T& x, _T &...y)
-    {
-        return read(x), read(y...);
-    }
-
-    template <class T>
-    inline void print128(T x)
-    {
-        if (x < 0)
-            putchar('-'), x = -x;
-        if (x > 9)
-            print128(x / 10);
-        putchar(x % 10 + '0');
-    }
-
-	enum class LineType
+	inline char nextChar()
 	{
-		HEAD, LINE
-	};
+		static char buf[1000000], * p1 = buf, * p2 = buf;
+		return p1 == p2 && (p2 = (p1 = buf) + fread(buf, 1, 1000000, stdin), p1 == p2) ? EOF : *p1++;
+	}
+#define getch nextChar
+	template <class T>
+	inline void read(T& x)
+	{
+		T flag = 1;
+		x = 0;
+		char ch = getch();
+		while (ch < '0' || ch > '9')
+		{
+			if (ch == '-')
+				flag = -1;
+			ch = getch();
+		}
+		while (ch >= '0' && ch <= '9')
+		{
+			x = (x << 3) + (x << 1) + (ch ^ 48), ch = getch();
+		}
+		x *= flag;
+	}
+
+	template <class T, class... _T>
+	inline void read(T& x, _T &...y)
+	{
+		return read(x), read(y...);
+	}
 
 	template <class T>
-	inline void writeStream(ofstream& out, T x)
+	inline void print128(T x)
 	{
-		out << x << endl;
+		if (x < 0)
+			putchar('-'), x = -x;
+		if (x > 9)
+			print128(x / 10);
+		putchar(x % 10 + '0');
+	}
+
+	template <class T>
+	inline void writeStream(T x)
+	{
+		cerr << x << endl;
 	}
 
 	template <class T, class... _T>
-	inline void writeStream(ofstream& out, T x, _T ...y)
+	inline void writeStream(T x, _T ...y)
 	{
-		out << x << ",";
-		writeStream(out, y...);
-	}
-
-	// 写入日志文件，参数 路径，表头还是行数据，具体内容
-	// 文件为空才会创建表头，否则的话
-	template <class T, class... _T>
-	inline void writeLog(string logPath, T x, _T ...y)
-	{
-		ofstream log_file(logPath, ios::app);
-		log_file.seekp(0, ios::end);
-		if (is_same<T, LineType>::value && x == LineType::HEAD)
-		{
-			if (log_file.tellp() <= 0) 
-			{
-				writeStream(log_file, y...);
-			}
-		}
-		else if(is_same<T, LineType>::value && x == LineType::LINE)
-		{
-			writeStream(log_file, y...);
-		}
-		else
-		{
-			cerr << "请输入表行或表头" << endl;
-		}
-
+		cerr << x << ",";
+		writeStream(y...);
 	}
 
 } // namespace FAST_IO
 
 namespace Debug {
+	using namespace std;
 #define DEBUG
 #ifdef DEBUG
 #define eprintf(x) fprintf(stderr, x)
@@ -173,13 +153,15 @@ namespace Debug {
 	template <class printable>
 	void trace(const char* name, printable&& value)
 	{
-		cerr << name << " = " << value << endl;
+		if (name[0] == '"') cerr << value << endl;
+		else cerr << name << " = " << value << endl;
 	}
 	template <class printable, class ...args>
 	void trace(const char* names, printable&& value, args &&...list)
 	{
 		const char* separate = strchr(names + 1, ',');
-		cerr.write(names, separate - names) << " = " << value << ',';
+		if (names[0] == '"') cerr << value << ',';
+		else cerr.write(names, separate - names) << " = " << value << ',';
 		trace(separate + 1, list...);
 	}
 }
@@ -307,7 +289,6 @@ namespace utils_visualize_drawer {
 		RandColor rc;
 	};
 }
-
 
 #endif // !_SRC_UTILS_H_
 

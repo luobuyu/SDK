@@ -7,7 +7,11 @@
 #include <string>
 #include "Utils.h"
 #include "Config.h"
+#include "Struct.h"
 using namespace std;
+using namespace utils;
+using namespace fast_io;
+
 
 class Environment {
 
@@ -37,23 +41,28 @@ private:
 // 读取样例，并将样例处理后存起来
 class Instance {
 
-private:
-	const Environment& _env; // 样例的配置路径
-
 public:
-	Instance(const Environment& env) : _env(env) { read_instance(); }
+	const Environment& _env; // 样例的配置路径
+public:
+	Instance(const Environment& env) : _env(env)
+	{
+		read_instance();
+	}
 
+	~Instance()
+	{
+	}
 
 private:
-	void read_instance() {
-		ifstream ifs(_env.instance_path());
-		if (!ifs.is_open()) {
+	void read_instance()
+	{
+		// 重定向到stdin
+		// 1069126 1069126 56306653
+		if (freopen(_env.instance_path().c_str(), "r", stdin) == NULL) {
 			cerr << "Error instance path: can not open " << _env.instance_path() << endl;
 			return;
 		}
 	}
-
-	
 };
 
 #endif // !_SRC_INSTANCE_H_
